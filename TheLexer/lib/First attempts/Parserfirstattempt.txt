@@ -1,0 +1,100 @@
+import java.util.ArrayList;
+import java.util.List;
+public class Parser 
+{
+    private List<Token> tokens;
+
+    public Parser(ArrayList<Token> t)
+    {
+        this.tokens = t;
+    }
+    public Node Parse() throws Exception 
+    {
+        return Expression();
+    }
+    public Token matchAndRemove(Token.TokenType tokenType)
+    {
+        if(tokens.isEmpty())
+        {
+            return null;
+        }
+        if(tokens.get(0).getType() == tokenType)
+        {
+            System.out.println(tokens.get(0));
+            
+            return tokens.get(0);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    private Node Expression() throws Exception 
+    {
+        Node localExpression;
+        localExpression = Term();
+        if(matchAndRemove(Token.TokenType.PLUS) != null)
+        {
+            return new MathOpNode(ADD, localExpression, Expression());
+        }
+        else if(matchAndRemove(Token.TokenType.MINUS) != null)
+        {
+            return new MathOpNode('-', localExpression, Expression());
+        }
+        else
+        {
+            return localExpression;
+        }
+    }
+    private Node Term() throws Exception 
+    {
+        Node localTerm;
+        localTerm = Factor();
+        if(matchAndRemove(Token.TokenType.TIMES) != null)
+        {
+            return new MathOpNode('*', localTerm, Term());
+        }
+        else if(matchAndRemove(Token.TokenType.DIV)!=null)
+        {
+            return new MathOpNode('/',localTerm,Term());
+        }
+        else
+        {
+            return localTerm;
+        }
+    }
+    private Node Factor()throws Exception 
+    {
+        Token token;
+
+        Node localFactor;
+        if((token = matchAndRemove(Token.TokenType.NUMBER)) != null)
+        {
+            if(!token.getValue().contains("."))
+            {
+                return new IntegerNode(Integer.parseInt(tokens.get(0).getValue()));
+            }
+            else
+            {
+                return new IntegerNode(Integer.parseInt(tokens.get(0).getValue()));
+            }
+        }
+        if(matchAndRemove(Token.TokenType.LParen) != null)
+        {
+            localFactor = Expression();
+            if (matchAndRemove(Token.TokenType.RParen) == null)
+            {
+                throw new Exception("No close parenthesis.");
+            }
+			else
+            {
+                return localFactor;
+            }
+        }
+        else
+        {
+            throw new Exception("Incorrect formatting: Factor");
+        }
+    }
+}

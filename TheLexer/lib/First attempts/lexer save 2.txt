@@ -1,0 +1,262 @@
+import java.util.ArrayList;
+import java.util.List;
+public class Lexer 
+{
+    enum state
+    {
+		NUMBER, DIV, TIMES, PLUS, MINUS, WhiteSpace, EndOfLine, LParen, RParen, NOTEQUALS, EQUALS,
+		GREATER, GOET, LESSER, LOET, STRING, IDENTIFER, LABEL, DECIMAL, COMMA;
+    }
+    state State = state.IDENTIFER;
+    public List<Token> lex(String s) throws Exception {
+        ArrayList<Token> tokenlist = new ArrayList<Token>();
+
+        int length = s.length();
+        for(int i = 0; i < length; i++)
+        {
+            char c = s.charAt(i);
+
+
+            if (Character.isDigit(c)) 
+            {
+                State = state.NUMBER;  
+            }
+            else if(c == '/')
+            {
+                State = state.DIV;
+            } 
+            else if(c == '*')
+            {
+                State = state.TIMES;
+            }
+            else if(c == '+') 
+            {
+                State = state.PLUS;
+            } 
+            else if(c == '-')
+            {
+                State = state.MINUS;
+            }
+            else if(c == ' ')
+            {
+                State = state.WhiteSpace;
+            }
+            else if(c == '\n')
+            {
+                State = state.EndOfLine;
+            }
+            else if(c == '(')
+            {
+                State = state.LParen;
+            }
+            else if(c == ')')
+            {
+                State = state.RParen;
+            }
+            else if(c == '<' && s.charAt(c+1) == '>')
+            {
+                State = state.NOTEQUALS;
+            }
+            else if(c == '=')
+            {
+                State = state.EQUALS;
+            }
+            else if(c == '>')
+            {
+                State = state.GREATER;
+            }
+            else if(c == '>' && s.charAt(i+1) == '=')
+            {
+                State = state.GOET;
+            }
+            else if(c == '<')
+            {
+                State = state.LESSER;
+            }
+            else if(c == '<' && s.charAt(c+1) == '=')
+            {
+                State = state.LOET;
+            }
+            else if(Character.isLetter(c))
+            {
+                State = state.STRING;
+            }
+            else if(c == ':')
+            {
+                State = state.LABEL;
+            }
+            else if(c == '.')
+            {
+                State = state.DECIMAL;
+            }
+            else if (c == ',')
+            {
+                State = state.COMMA;
+            }
+            else 
+            {
+                throw new Exception("LexerEXCEPTION");
+            }
+            if(State.equals(state.NUMBER))
+            {   
+                String NumString = "";
+                try{
+                    if(Character.isDigit(s.charAt(i)) && Character.isDigit(s.charAt(i+1)))
+                    {
+ 
+                        NumString += s.charAt(i);
+                        tokenlist.add(new Token(Token.TokenType.NUMBER,NumString));
+                    }
+                    else
+                    {
+                        int increaser = 0;
+                        try{
+                            do
+                            {   if(Character.isDigit(s.charAt(i+1)))
+                                {
+                                    NumString += c;
+                                    increaser++;
+                                }
+                                else
+                                {
+                                    NumString += c;
+                                    tokenlist.add(new Token(Token.TokenType.NUMBER,NumString));
+                                    increaser++;
+                                }
+                            }while(Character.isDigit(s.charAt(i+increaser)));
+                        }catch(Exception e){
+                            NumString += c;
+                            tokenlist.add(new Token(Token.TokenType.NUMBER,NumString));
+                        }
+                    }
+                }catch(StringIndexOutOfBoundsException e)
+                {
+
+                    NumString += c;
+                    tokenlist.add(new Token(Token.TokenType.NUMBER, NumString));
+
+                }
+            }
+            else if(State.equals(state.DIV))
+            {
+                newToken(Token.TokenType.DIV, tokenlist);
+            }
+            else if(State.equals(state.TIMES))
+            {
+                newToken(Token.TokenType.TIMES, tokenlist);
+            }
+            else if(State.equals(state.PLUS))
+            {
+                newToken(Token.TokenType.PLUS, tokenlist);
+            }
+            else if(State.equals(state.MINUS))
+            {
+
+            }
+            else if(State.equals(state.WhiteSpace))
+            {
+                newToken(Token.TokenType.WhiteSpace, tokenlist);
+            }
+            else if(State.equals(state.EndOfLine))
+            {
+                newToken(Token.TokenType.EndOfLine, tokenlist);
+            }
+            else if(State.equals(state.LParen))
+            {
+                newToken(Token.TokenType.LParen, tokenlist);
+            }
+            else if(State.equals(state.RParen))
+            {
+                newToken(Token.TokenType.RParen,tokenlist);
+            }
+            else if(State.equals(state.NOTEQUALS))
+            {
+                newToken(Token.TokenType.NOTEQUALS, tokenlist);
+            }
+            else if(State.equals(state.EQUALS))
+            {
+                newToken(Token.TokenType.EQUALS,tokenlist);
+            }
+            else if(State.equals(state.GREATER))
+            {
+                newToken(Token.TokenType.GREATER, tokenlist);
+            }
+            else if(State.equals(state.GOET))
+            {
+                newToken(Token.TokenType.GOET, tokenlist);
+            }
+            else if(State.equals(state.LESSER))
+            {
+                newToken(Token.TokenType.LESSER, tokenlist);
+            }
+            else if(State.equals(state.LOET))
+            {
+                newToken(Token.TokenType.LOET, tokenlist);
+            }
+            else if(State.equals(state.STRING))
+            {
+                newToken(Token.TokenType.STRING, tokenlist);
+            }
+            else if(State.equals(state.LABEL))
+            {
+                newToken(Token.TokenType.LABEL, tokenlist);
+            }
+
+            else if(State.equals(state.COMMA))
+            {
+                newToken(Token.TokenType.COMMA, tokenlist);
+            }
+            if(State.equals(state.DECIMAL))
+            {
+
+            }
+ //num,div,times,plus,minus,whitespace,endofline,lparen,rparen,notequals,equals,greater,goet,lesser,loet,string,label,decimal,comma
+        }
+        tokenlist.add(new Token(Token.TokenType.EndOfLine));
+        return tokenlist;
+    }
+    private boolean isNotIteratable(String s, int iteration,int i,int j)
+    {   
+        try
+        {
+            //This is a very convoluted but necessary function.
+            //Any time you see Character.isDigit() 
+            //it is to see if it throws an exception.
+
+            if(Character.isDigit(s.charAt(i+1)))
+            {
+                //This just checks to see if i can be increased.
+                //If i cannot be increased it will throw an out of bounds exception and return false.
+                //If this function returns false it means 
+                return true;
+            }
+            else
+            {
+                try
+                {
+                    //This isDigit() line only exists to see if it throws an exception.
+                    Character.isDigit(s.charAt(j));
+                    //If it doesn't the function returns true.
+                    //If it does the function returns false.
+                    return true;
+                }
+                catch(Exception e)
+                {
+                    return false;
+                }
+            }
+        }
+        catch(Exception e)
+        {
+            return false;
+        }
+                
+    }
+    private ArrayList<Token> newToken(Token.TokenType val, ArrayList<Token> tokenlist)
+    {
+        tokenlist.add(new Token(val));
+        return tokenlist;
+    }
+}
+
+
